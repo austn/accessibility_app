@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AccessibilityApp</string>
+    <string name="app_name">Scroll to Top</string>
 
 
     <string name="draw_permission_not_available">Draw over other app permission not available. Closing the application"</string>

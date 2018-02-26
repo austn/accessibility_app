@@ -12,8 +12,11 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.ImageView
+import android.os.Bundle
+import java.nio.file.Path
 
 import java.util.ArrayDeque
+import android.accessibilityservice.GestureDescription
 
 import kotlin.mykolamiroshnychenko.accessibilityapp.R
 import timber.log.Timber
@@ -128,13 +131,41 @@ class WidgetAccessibilityService : AccessibilityService() {
 
         params!!.gravity = Gravity.TOP or Gravity.LEFT        //Initially view will be added to top-left corner
         params!!.x = 0
-        params!!.y = 100
-    }
+           params!!.y = 100
+       }
 
 
-    private fun performScroll() {
-        val scrollable = findScrollableNode(rootInActiveWindow)
-        scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD.id)
+       private fun performScroll() {
+           //val scrollable = findScrollableNode(rootInActiveWindow);
+           /*
+           I thought this would work it doesn't.  Not sure why. From here https://stackoverflow.com/q/15557902
+           val a = Bundle();
+           a.putInt("ACTION_ARGUMENT_MOVE_WINDOW_X",0); https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/pip/phone/PipAccessibilityInteractionConnection.java#L94
+           a.putInt("ACTION_ARGUMENT_COLUMN_INT",0);
+           // ACTION_SCROLL_UP doesn't work either
+        scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION.id,a);
+        Scrollable elements funs allow you to call toScroll but I don't believe this are available through Accessibility APIs.
+        https://developer.android.com/reference/android/widget/ScrollView.html#computeScroll()
+        Because the above didn't work I did plan B and trigured an actual gesture that repeats based on the center of screen.
+        This is the same way "Automatic Scroll works."
+        */
+
+        val d : android.util.DisplayMetrics = getResources().getDisplayMetrics();
+        android.util.Log.i("x width",""+d.widthPixels.toString());  // 1440 pixel
+        android.util.Log.i("y height",""+d.heightPixels.toString());// 2392 pixel
+        val x = d.widthPixels / 2;
+        val y = d.heightPixels /2;
+        var i = 0;
+        // fairly nasty approach but works fine on fast device
+        while(i<10){  // from here https://stackoverflow.com/q/44420320
+            val swipePath = android.graphics.Path();
+            swipePath.moveTo(x.toFloat(), y.toFloat());
+            swipePath.lineTo(x.toFloat(), (y+y/2).toFloat());
+            val gestureBuilder = GestureDescription.Builder();
+            gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 1.0.toLong()));
+            dispatchGesture(gestureBuilder.build(), null, null);
+            i++;
+         }
     }
 
     private fun findScrollableNode(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
