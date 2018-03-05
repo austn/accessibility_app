@@ -9,6 +9,8 @@ import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import kotlin.mykolamiroshnychenko.accessibilityapp.R
+import android.view.View
+import android.widget.ImageView
 
 /**
  * Created by mykolamiroshnychenko on 2/19/18.
@@ -22,6 +24,18 @@ class MainActivity : AppCompatActivity() {
         if (shouldExplicitlyRequestPermission()) {
             startSystemDialogWithOverlayPermission()
         }
+        /* val accessibility : ImageView = findViewById(R.id.accessibility)
+        accessibility.setOnClickListener(object:View.OnClickListener {
+          override fun onClick(v:View) {
+            ;
+          }
+        })
+        val displayover : ImageView = findViewById(R.id.displayover)
+        displayover.setOnClickListener(object:View.OnClickListener {
+          override fun onClick(v:View) {
+            ;
+          }
+        })*/
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
