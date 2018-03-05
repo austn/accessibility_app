@@ -5,22 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<Button
-        android:id="@+id/start_btn"
+    <Button
+        android:id="@+id/accessibility"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start"
+        android:text="Open Accessibility"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.267"/>
+
+    <Button
+        android:id="@+id/displayover"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display Over Apps"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.41"/>
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:text="Settings -> Acccessibilty ->  Scroll to Top (Location depends on device)"
+        android:text='Settings -> Acccessibilty ->  Scroll to Top (Location depends on device) \nYou must also enable "Display Over Other Apps" Settings '
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="16dp"/>
 </android.support.constraint.ConstraintLayout>

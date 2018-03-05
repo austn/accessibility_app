@@ -15,12 +15,4 @@
         android:src="@drawable/top_button"
         tools:ignore="ContentDescription" />
 
-    <!--Close button-->
-    <ImageView
-        android:id="@+id/close_btn"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:layout_marginLeft="40dp"
-        android:src="@drawable/close"
-        tools:ignore="ContentDescription" />
 </RelativeLayout>
