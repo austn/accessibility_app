@@ -26,6 +26,7 @@ class WidgetAccessibilityService : AccessibilityService() {
     private var mWindowManager: WindowManager? = null
     private var widgetView: View? = null
     internal var params: WindowManager.LayoutParams? = null
+    private var i = 0
 
     private val listener = object : View.OnTouchListener {
         private var lastAction: Int = 0
@@ -57,8 +58,13 @@ class WidgetAccessibilityService : AccessibilityService() {
                 }
                 MotionEvent.ACTION_MOVE -> {
                     //Calculate the X and Y coordinates of the view.
-                    params!!.x = initialX + (event.rawX - initialTouchX).toInt()
-                    params!!.y = initialY + (event.rawY - initialTouchY).toInt()
+                    var x = initialX + (event.rawX - initialTouchX).toInt()
+                    var y = initialY + (event.rawY - initialTouchY).toInt()
+                    params!!.x = x
+                    //params!!.y = y
+
+                    android.util.Log.i("x move",""+x.toString());
+                    android.util.Log.i("y move",""+y.toString());
 
                     //Update the layout with new X & Y coordinate
                     mWindowManager!!.updateViewLayout(widgetView, params)
@@ -105,18 +111,11 @@ class WidgetAccessibilityService : AccessibilityService() {
 
 
     private fun setUpInteractionListeners() {
-        val closeButton = widgetView!!.findViewById<View>(R.id.close_btn) as ImageView
-        closeButton.setOnClickListener {
-            stopSelf()
-        }
-
         val chatHeadImage = widgetView!!.findViewById<View>(R.id.chat_head_profile_iv) as ImageView
         chatHeadImage.setOnTouchListener(listener)
     }
 
-
     private fun setUpWindowParams() {
-
         var flags = WindowManager.LayoutParams.TYPE_PHONE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             flags = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -129,43 +128,48 @@ class WidgetAccessibilityService : AccessibilityService() {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT)
 
-        params!!.gravity = Gravity.TOP or Gravity.LEFT        //Initially view will be added to top-left corner
+        params!!.gravity = Gravity.BOTTOM or Gravity.LEFT        //Initially view will be added to top-left corner
         params!!.x = 0
-           params!!.y = 100
-       }
-
-
-       private fun performScroll() {
-           //val scrollable = findScrollableNode(rootInActiveWindow);
-           /*
-           I thought this would work it doesn't.  Not sure why. From here https://stackoverflow.com/q/15557902
-           val a = Bundle();
-           a.putInt("ACTION_ARGUMENT_MOVE_WINDOW_X",0); https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/pip/phone/PipAccessibilityInteractionConnection.java#L94
-           a.putInt("ACTION_ARGUMENT_COLUMN_INT",0);
-           // ACTION_SCROLL_UP doesn't work either
+        params!!.y = 0
+     }
+     private fun performScroll(){
+       i = 0;
+       scroll();
+     }
+     private fun scroll() {
+        //val scrollable = findScrollableNode(rootInActiveWindow);
+        /*
+        I thought this would work it doesn't.  Not sure why. From here https://stackoverflow.com/q/15557902
+        val a = Bundle();
+        a.putInt("ACTION_ARGUMENT_MOVE_WINDOW_X",0); https://github.com/aosp-mirror/platform_frameworks_base/blob/master/packages/SystemUI/src/com/android/systemui/pip/phone/PipAccessibilityInteractionConnection.java#L94
+        a.putInt("ACTION_ARGUMENT_COLUMN_INT",0);  // ACTION_SCROLL_UP doesn't work either
         scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION.id,a);
         Scrollable elements funs allow you to call toScroll but I don't believe this are available through Accessibility APIs.
         https://developer.android.com/reference/android/widget/ScrollView.html#computeScroll()
         Because the above didn't work I did plan B and trigured an actual gesture that repeats based on the center of screen.
-        This is the same way "Automatic Scroll works."
-        */
-
+        This is the same way "Automatic Scroll" works. */
         val d : android.util.DisplayMetrics = getResources().getDisplayMetrics();
         android.util.Log.i("x width",""+d.widthPixels.toString());  // 1440 pixel
         android.util.Log.i("y height",""+d.heightPixels.toString());// 2392 pixel
         val x = d.widthPixels / 2;
         val y = d.heightPixels /2;
-        var i = 0;
-        // fairly nasty approach but works fine on fast device
-        while(i<10){  // from here https://stackoverflow.com/q/44420320
-            val swipePath = android.graphics.Path();
-            swipePath.moveTo(x.toFloat(), y.toFloat());
-            swipePath.lineTo(x.toFloat(), (y+y/2).toFloat());
-            val gestureBuilder = GestureDescription.Builder();
-            gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 1.0.toLong()));
-            dispatchGesture(gestureBuilder.build(), null, null);
-            i++;
-         }
+        val swipePath = android.graphics.Path(); // from here https://stackoverflow.com/q/44420320
+        swipePath.moveTo(x.toFloat(), (y-y/2).toFloat());
+        swipePath.lineTo(x.toFloat(), (y+y/2).toFloat());
+        val gestureBuilder = GestureDescription.Builder();
+        gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 20.0.toLong(),false));
+        //gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 20.0.toLong(),false));
+        dispatchGesture(gestureBuilder.build(), object:android.accessibilityservice.AccessibilityService.GestureResultCallback() {
+                                                  override fun onCompleted(gestureDescription:android.accessibilityservice.GestureDescription) {
+                                                     android.util.Log.i("onCompleted",""+i.toString());
+                                                     if(i++<50)scroll();
+                                                  }
+                                                  override fun onCancelled(gestureDescription:android.accessibilityservice.GestureDescription) {
+                                                     //if(i++<3)performScroll();
+                                                     android.util.Log.i("onCancelled","onCancelled");
+                                                  }
+
+                                                }, null);
     }
 
     private fun findScrollableNode(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
