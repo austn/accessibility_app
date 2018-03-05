@@ -56,7 +56,7 @@ public class ChatHeadService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mChatHeadView, params);
 
-        //Set the close button.
+        /*Set the close button.
         ImageView closeButton = (ImageView) mChatHeadView.findViewById(R.id.close_btn);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,7 +64,7 @@ public class ChatHeadService extends Service {
                 //close the service and remove the chat head from the window
                 stopSelf();
             }
-        });
+        });*/
 
         //Drag and move chat head using user's touch action.
         final ImageView chatHeadImage = (ImageView) mChatHeadView.findViewById(R.id.chat_head_profile_iv);
