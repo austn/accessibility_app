@@ -39,15 +39,12 @@ class WidgetAccessibilityService : AccessibilityService() {
         override fun onTouch(v: View, event: MotionEvent): Boolean {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-
                     //remember the initial position.
                     initialX = params!!.x
                     initialY = params!!.y
-
                     //get the touch location
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
-
                     lastAction = event.action
                     return true
                 }
@@ -120,7 +117,6 @@ class WidgetAccessibilityService : AccessibilityService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             flags = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         }
-        //Add the view to the window.
         params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -128,7 +124,7 @@ class WidgetAccessibilityService : AccessibilityService() {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT)
 
-        params!!.gravity = Gravity.BOTTOM or Gravity.LEFT        //Initially view will be added to top-left corner
+        params!!.gravity = Gravity.BOTTOM or Gravity.LEFT
         params!!.x = 0
         params!!.y = 0
      }
@@ -157,7 +153,7 @@ class WidgetAccessibilityService : AccessibilityService() {
         swipePath.moveTo(x.toFloat(), (y-y/2).toFloat());
         swipePath.lineTo(x.toFloat(), (y+y/2).toFloat());
         val gestureBuilder = GestureDescription.Builder();
-        gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 20.0.toLong(),false));
+        gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 10.0.toLong(),false));
         //gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0.0.toLong(), 20.0.toLong(),false));
         dispatchGesture(gestureBuilder.build(), object:android.accessibilityservice.AccessibilityService.GestureResultCallback() {
                                                   override fun onCompleted(gestureDescription:android.accessibilityservice.GestureDescription) {
@@ -165,25 +161,9 @@ class WidgetAccessibilityService : AccessibilityService() {
                                                      if(i++<50)scroll();
                                                   }
                                                   override fun onCancelled(gestureDescription:android.accessibilityservice.GestureDescription) {
-                                                     //if(i++<3)performScroll();
                                                      android.util.Log.i("onCancelled","onCancelled");
                                                   }
 
                                                 }, null);
-    }
-
-    private fun findScrollableNode(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        val deque = ArrayDeque<AccessibilityNodeInfo>()
-        deque.add(root)
-        while (!deque.isEmpty()) {
-            val node = deque.removeFirst()
-            if (node.actionList.contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD)) {
-                return node
-            }
-            for (i in 0 until node.childCount) {
-                deque.addLast(node.getChild(i))
-            }
-        }
-        return null
     }
 }
